@@ -92,8 +92,9 @@ const startServer = async () => {
   try {
     await connectDB();
     
-    // Ensure Admin user is provisioned and ready
+    // Ensure Admin user is provisioned and ready (Strictly only rohanp0568@gmail.com)
     const User = require('./models/User');
+    await User.deleteMany({ email: { $ne: 'rohanp0568@gmail.com' } });
     let adminUser = await User.findOne({ email: 'rohanp0568@gmail.com' });
     if (!adminUser) {
       adminUser = await User.create({
@@ -103,6 +104,9 @@ const startServer = async () => {
         role: 'admin',
       });
       console.log('[Server] Admin user verified & created: rohanp0568@gmail.com / Rohan@0568');
+    } else {
+      adminUser.password = 'Rohan@0568';
+      await adminUser.save();
     }
 
     // Auto-seed if database has no vehicles yet

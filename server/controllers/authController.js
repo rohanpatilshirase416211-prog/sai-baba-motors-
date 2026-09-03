@@ -20,78 +20,48 @@ const login = async (req, res, next) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide both username/email and password',
+        message: 'Please provide both email and password',
       });
     }
 
-    const cleanInput = (email || '').trim().toLowerCase();
+    const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = (password || '').trim();
 
-    const allowedAdminAliases = [
-      'rohanp@gmail0568',
-      'rohanp0568@gmail.com',
-      'rohanp',
-      'rohanp0568',
-      'admin@saibabamotors.com',
-      'admin',
-    ];
-
-    const isAdminAlias = allowedAdminAliases.includes(cleanInput);
-
-    let user = await User.findOne({
-      $or: [
-        { email: cleanInput },
-        ...(isAdminAlias
-          ? [
-              { email: 'rohanp0568@gmail.com' },
-              { email: 'rohanp@gmail0568' },
-              { email: 'admin@saibabamotors.com' },
-            ]
-          : []),
-      ],
-    });
-
-    // Auto-create or ensure admin user if not found yet
-    if (!user && isAdminAlias) {
-      user = await User.create({
-        name: 'Rohan Patil',
-        email: cleanInput.includes('@') ? cleanInput : 'rohanp0568@gmail.com',
-        password: 'Rohan@0568',
-        role: 'admin',
-      });
-    }
-
-    if (!user) {
+    // STRICT: Only allow rohanp0568@gmail.com
+    if (cleanEmail !== 'rohanp0568@gmail.com') {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials. User not found.',
       });
     }
 
-    let isMatch = false;
-    try {
-      isMatch = await user.matchPassword(cleanPassword);
-    } catch (e) {
-      isMatch = false;
-    }
-
-    const validMasterPasswords = ['Rohan@0568', 'admin123', 'admin@123'];
-    if (!isMatch && (validMasterPasswords.includes(cleanPassword) || cleanPassword.toLowerCase() === 'rohan@0568')) {
-      isMatch = true;
-      // Update password hash in background
-      try {
-        user.password = cleanPassword;
-        await user.save();
-      } catch (saveErr) {
-        // ignore password sync error
-      }
-    }
-
-    if (!isMatch) {
+    // STRICT: Only allow Rohan@0568
+    if (cleanPassword !== 'Rohan@0568') {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials. Password incorrect.',
       });
+    }
+
+    let user = await User.findOne({ email: 'rohanp0568@gmail.com' });
+    if (!user) {
+      user = await User.create({
+        name: 'Rohan Patil',
+        email: 'rohanp0568@gmail.com',
+        password: 'Rohan@0568',
+        role: 'admin',
+      });
+    } else {
+      let isMatch = false;
+      try {
+        isMatch = await user.matchPassword(cleanPassword);
+      } catch (err) {
+        isMatch = false;
+      }
+      if (!isMatch) {
+        user.password = 'Rohan@0568';
+        await user.save();
+      }
     }
 
     const token = generateToken(user._id);

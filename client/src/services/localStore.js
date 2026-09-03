@@ -55,46 +55,34 @@ export const localAuthLogin = async ({ email, password }) => {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanPassword = (password || '').trim();
 
-  const validUsernames = [
-    'rohanp@gmail0568',
-    'rohanp0568@gmail.com',
-    'rohanp',
-    'rohanp0568',
-    'admin@saibabamotors.com',
-    'admin',
-  ];
-
-  const validPasswords = ['rohan@0568', 'admin@123', 'admin123'];
-
-  const isUserValid = validUsernames.includes(cleanEmail);
-  const isPassValid = cleanPassword === 'Rohan@0568' || validPasswords.includes(cleanPassword.toLowerCase());
-
-  if (isUserValid && isPassValid) {
-    const user = {
-      id: 'admin_saibaba_kasba_walve',
-      name: 'Rohan Patil — Admin',
-      email: cleanEmail.includes('@') ? cleanEmail : 'rohanp0568@gmail.com',
-      role: 'admin',
-    };
-    const token = 'demo_jwt_saibaba_kasba_walve_2026';
-    return {
-      data: {
-        success: true,
-        token,
-        user,
-      },
-    };
-  }
-
-  if (!isUserValid) {
+  // STRICT: Only allow rohanp0568@gmail.com as username/email
+  if (cleanEmail !== 'rohanp0568@gmail.com') {
     const err = new Error('Invalid credentials. User not found.');
     err.response = { data: { success: false, message: 'Invalid credentials. User not found.' } };
     throw err;
-  } else {
+  }
+
+  // STRICT: Only allow Rohan@0568 as password
+  if (cleanPassword !== 'Rohan@0568') {
     const err = new Error('Invalid credentials. Password incorrect.');
     err.response = { data: { success: false, message: 'Invalid credentials. Password incorrect.' } };
     throw err;
   }
+
+  const user = {
+    id: 'admin_saibaba_kasba_walve',
+    name: 'Rohan Patil — Admin',
+    email: 'rohanp0568@gmail.com',
+    role: 'admin',
+  };
+  const token = 'demo_jwt_saibaba_kasba_walve_2026';
+  return {
+    data: {
+      success: true,
+      token,
+      user,
+    },
+  };
 };
 
 export const localAuthGetMe = async () => {

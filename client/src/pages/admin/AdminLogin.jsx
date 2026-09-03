@@ -66,7 +66,7 @@ const AdminLogin = () => {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Admin Username / Email Address
+                Admin Email Address
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -75,8 +75,8 @@ const AdminLogin = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="rohanp@gmail0568 or rohanp0568@gmail.com"
-                  autoComplete="username"
+                  placeholder=""
+                  autoComplete="off"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-900 focus:bg-white"
                 />
               </div>
