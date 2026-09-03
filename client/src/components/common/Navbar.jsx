@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Phone, Menu, X, Car, Bike, Sparkles } from 'lucide-react';
 import CallModal from './CallModal';
 
@@ -7,7 +7,30 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [logoClicks, setLogoClicks] = useState(0);
+  const clickTimerRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleBrandClick = (e) => {
+    const nextClicks = logoClicks + 1;
+    setLogoClicks(nextClicks);
+
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+    }
+
+    if (nextClicks >= 5) {
+      e.preventDefault();
+      setLogoClicks(0);
+      navigate('/admin/login');
+      return;
+    }
+
+    clickTimerRef.current = setTimeout(() => {
+      setLogoClicks(0);
+    }, 2500);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,8 +70,13 @@ const Navbar = () => {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          {/* Brand Logo - 5 clicks opens Admin Portal */}
+          <Link
+            to="/"
+            onClick={handleBrandClick}
+            className="flex items-center gap-3 group select-none cursor-pointer"
+            title="साईबाबा मोटर्स"
+          >
             <div className="h-12 w-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-md border border-slate-200/80 group-hover:scale-105 transition-transform shrink-0">
               <img
                 src="/logo.png"

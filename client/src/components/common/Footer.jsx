@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin,
   Phone,
@@ -14,13 +14,36 @@ import {
 import { SHOWROOM_INFO, SHOWROOM_OWNERS, getCallLink, getWhatsAppLink } from '../../utils/formatters';
 
 const Footer = () => {
+  const [footerClicks, setFooterClicks] = useState(0);
+  const clickTimerRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleBrandClick = (e) => {
+    const nextClicks = footerClicks + 1;
+    setFooterClicks(nextClicks);
+
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+    }
+
+    if (nextClicks >= 5) {
+      e.preventDefault();
+      setFooterClicks(0);
+      navigate('/admin/login');
+      return;
+    }
+
+    clickTimerRef.current = setTimeout(() => {
+      setFooterClicks(0);
+    }, 2500);
+  };
   return (
     <footer className="bg-navy-950 text-slate-300 pt-16 pb-12 border-t border-navy-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-navy-800/80">
-          {/* Column 1: Brand & Showroom Story */}
+          {/* Column 1: Brand & Showroom Story - 5 clicks opens Admin Portal */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
+            <div onClick={handleBrandClick} className="flex items-center gap-3 cursor-pointer select-none group" title="साईबाबा मोटर्स">
               <div className="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-md border border-slate-100 shrink-0">
                 <img
                   src="/logo.png"
