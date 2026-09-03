@@ -53,7 +53,9 @@ export const saveStoredSellRequests = (list) => {
 // Auth Mock
 export const localAuthLogin = async ({ email, password }) => {
   const cleanEmail = (email || '').trim().toLowerCase();
-  if (cleanEmail === 'admin@saibabamotors.com' && password === 'admin123') {
+  const cleanPassword = (password || '').trim();
+  const validPasswords = ['admin@123', 'admin123'];
+  if (cleanEmail === 'admin@saibabamotors.com' && validPasswords.includes(cleanPassword)) {
     const user = {
       id: 'admin_saibaba_kasba_walve',
       name: 'Sai Baba Motors Admin',
