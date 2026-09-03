@@ -16,6 +16,8 @@ client/dist/
 server/uploads/*
 !server/uploads/.gitkeep
 server/data/
+server/test_crash_dir/
+
 
 # Logs
 *.log
