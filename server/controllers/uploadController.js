@@ -59,6 +59,17 @@ const uploadImages = async (req, res, next) => {
       } else {
         // Local server static path
         uploadedUrls.push(`/uploads/${file.filename}`);
+
+        // Also copy to client/public/uploads so static builds include newly uploaded files
+        try {
+          const clientPublicUploads = path.join(__dirname, '..', '..', 'client', 'public', 'uploads');
+          if (!fs.existsSync(clientPublicUploads)) {
+            fs.mkdirSync(clientPublicUploads, { recursive: true });
+          }
+          fs.copyFileSync(file.path, path.join(clientPublicUploads, file.filename));
+        } catch (copyErr) {
+          // Non-critical, continue
+        }
       }
     }
 

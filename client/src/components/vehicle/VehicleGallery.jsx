@@ -33,6 +33,10 @@ const VehicleGallery = ({ images = [], title = 'Vehicle' }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = fallbackImage;
+            }}
             className="w-full h-full object-cover select-none cursor-pointer"
             onClick={() => setIsFullscreen(true)}
           />

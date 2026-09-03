@@ -43,6 +43,13 @@ const VehicleCard = ({ vehicle }) => {
             src={displayImage}
             alt={`${vehicle.year} ${vehicle.brand} ${vehicle.model}`}
             loading="lazy"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                vehicle.vehicleType === 'bike'
+                  ? 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80'
+                  : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
+            }}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
 

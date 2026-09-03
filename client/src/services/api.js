@@ -196,16 +196,72 @@ export const uploadAPI = {
       });
       return res;
     } catch {
-      // Local fallback: create object URLs from uploaded files
+      // Offline / Netlify static fallback:
+      // Convert uploaded image files into optimized, compressed Base64 data URLs
+      // so they can be saved directly in localStorage and never expire.
       const files = formData.getAll ? formData.getAll('images') : [];
-      const imageUrls = Array.from(files).map((file) =>
-        file instanceof File ? URL.createObjectURL(file) : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80'
-      );
+
+      const compressImageToBase64 = (file) => {
+        return new Promise((resolve) => {
+          if (!(file instanceof File)) {
+            resolve(
+              typeof file === 'string'
+                ? file
+                : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80'
+            );
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 1200;
+              const MAX_HEIGHT = 900;
+              let { width, height } = img;
+
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height = Math.round((height * MAX_WIDTH) / width);
+                  width = MAX_WIDTH;
+                }
+              } else {
+                if (height > MAX_HEIGHT) {
+                  width = Math.round((width * MAX_HEIGHT) / height);
+                  height = MAX_HEIGHT;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+
+              // Compress to JPEG with 0.8 quality
+              const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+              resolve(compressedDataUrl);
+            };
+            img.onerror = () => {
+              resolve(e.target.result);
+            };
+            img.src = e.target.result;
+          };
+          reader.onerror = () => {
+            resolve('https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80');
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const imageUrls = await Promise.all(Array.from(files).map(compressImageToBase64));
+
       return {
         data: {
           success: true,
           count: imageUrls.length,
-          images: imageUrls,
+          urls: imageUrls,
+          primaryUrl: imageUrls[0] || '',
         },
       };
     }

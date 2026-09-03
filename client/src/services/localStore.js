@@ -3,15 +3,25 @@ import { initialVehicles, initialEnquiries, initialSellRequests } from '../data/
 const VEHICLES_KEY = 'saibaba_demo_vehicles';
 const ENQUIRIES_KEY = 'saibaba_demo_enquiries';
 const SELL_REQUESTS_KEY = 'saibaba_demo_sell_requests';
+const STORE_VERSION_KEY = 'saibaba_store_version';
+const DATA_VERSION = 'v3_2026_09_03_pickup_sync';
 
-// Initialize storage if empty
+// Initialize storage if empty or version changed
 export const getStoredVehicles = () => {
   try {
+    const savedVersion = localStorage.getItem(STORE_VERSION_KEY);
+    if (savedVersion !== DATA_VERSION) {
+      localStorage.setItem(STORE_VERSION_KEY, DATA_VERSION);
+      localStorage.setItem(VEHICLES_KEY, JSON.stringify(initialVehicles));
+      return initialVehicles;
+    }
+
     const raw = localStorage.getItem(VEHICLES_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {
     console.warn('Could not parse stored vehicles:', e);
   }
+  localStorage.setItem(STORE_VERSION_KEY, DATA_VERSION);
   localStorage.setItem(VEHICLES_KEY, JSON.stringify(initialVehicles));
   return initialVehicles;
 };
