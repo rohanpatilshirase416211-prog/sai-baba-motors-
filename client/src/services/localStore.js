@@ -54,12 +54,26 @@ export const saveStoredSellRequests = (list) => {
 export const localAuthLogin = async ({ email, password }) => {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanPassword = (password || '').trim();
-  const validPasswords = ['admin@123', 'admin123'];
-  if (cleanEmail === 'admin@saibabamotors.com' && validPasswords.includes(cleanPassword)) {
+
+  const validUsernames = [
+    'rohanp@gmail0568',
+    'rohanp0568@gmail.com',
+    'rohanp',
+    'rohanp0568',
+    'admin@saibabamotors.com',
+    'admin',
+  ];
+
+  const validPasswords = ['rohan@0568', 'admin@123', 'admin123'];
+
+  const isUserValid = validUsernames.includes(cleanEmail);
+  const isPassValid = cleanPassword === 'Rohan@0568' || validPasswords.includes(cleanPassword.toLowerCase());
+
+  if (isUserValid && isPassValid) {
     const user = {
       id: 'admin_saibaba_kasba_walve',
-      name: 'Sai Baba Motors Admin',
-      email: 'admin@saibabamotors.com',
+      name: 'Rohan Patil — Admin',
+      email: cleanEmail.includes('@') ? cleanEmail : 'rohanp0568@gmail.com',
       role: 'admin',
     };
     const token = 'demo_jwt_saibaba_kasba_walve_2026';
@@ -72,7 +86,7 @@ export const localAuthLogin = async ({ email, password }) => {
     };
   }
 
-  if (cleanEmail !== 'admin@saibabamotors.com') {
+  if (!isUserValid) {
     const err = new Error('Invalid credentials. User not found.');
     err.response = { data: { success: false, message: 'Invalid credentials. User not found.' } };
     throw err;
@@ -95,8 +109,8 @@ export const localAuthGetMe = async () => {
       success: true,
       user: {
         id: 'admin_saibaba_kasba_walve',
-        name: 'Sai Baba Motors Admin',
-        email: 'admin@saibabamotors.com',
+        name: 'Rohan Patil — Admin',
+        email: 'rohanp0568@gmail.com',
         role: 'admin',
       },
     },

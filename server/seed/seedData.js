@@ -412,17 +412,25 @@ const seedDatabase = async (options = {}) => {
     console.log('[Seed] Database connected. Checking data for साईबाबा मोटर्स...');
 
     // 1. Seed or update Admin user
-    const existingAdmin = await User.findOne({ email: 'admin@saibabamotors.com' });
+    let existingAdmin = await User.findOne({ email: 'rohanp0568@gmail.com' });
+    const oldAdmin = await User.findOne({ email: 'admin@saibabamotors.com' });
+    // Remove old admin if migrating
+    if (oldAdmin) {
+      await User.deleteOne({ email: 'admin@saibabamotors.com' });
+      console.log('[Seed] Old admin user removed: admin@saibabamotors.com');
+    }
     if (!existingAdmin) {
-      await User.create({
-        name: 'Sai Baba Motors Admin',
-        email: 'admin@saibabamotors.com',
-        password: 'admin123', // will be hashed automatically by pre-save hook
+      existingAdmin = await User.create({
+        name: 'Rohan Patil',
+        email: 'rohanp0568@gmail.com',
+        password: 'Rohan@0568', // will be hashed automatically by pre-save hook
         role: 'admin',
       });
-      console.log('[Seed] Admin user created: admin@saibabamotors.com / admin123');
+      console.log('[Seed] Admin user created: rohanp0568@gmail.com / Rohan@0568');
     } else {
-      console.log('[Seed] Admin user already exists: admin@saibabamotors.com');
+      existingAdmin.password = 'Rohan@0568';
+      await existingAdmin.save();
+      console.log('[Seed] Admin user password updated: rohanp0568@gmail.com / Rohan@0568');
     }
 
     // 2. Clear & re-seed only if force is explicitly passed OR if database is completely empty

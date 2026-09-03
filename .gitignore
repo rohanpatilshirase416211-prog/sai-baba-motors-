@@ -30,3 +30,9 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Temporary exports / downloads
+Subscription Required*
+*.html
+!client/index.html
+

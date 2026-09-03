@@ -92,6 +92,19 @@ const startServer = async () => {
   try {
     await connectDB();
     
+    // Ensure Admin user is provisioned and ready
+    const User = require('./models/User');
+    let adminUser = await User.findOne({ email: 'rohanp0568@gmail.com' });
+    if (!adminUser) {
+      adminUser = await User.create({
+        name: 'Rohan Patil',
+        email: 'rohanp0568@gmail.com',
+        password: 'Rohan@0568',
+        role: 'admin',
+      });
+      console.log('[Server] Admin user verified & created: rohanp0568@gmail.com / Rohan@0568');
+    }
+
     // Auto-seed if database has no vehicles yet
     const Vehicle = require('./models/Vehicle');
     const vehicleCount = await Vehicle.countDocuments();
