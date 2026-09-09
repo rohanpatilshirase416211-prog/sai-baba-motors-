@@ -39,7 +39,7 @@ app.use(async (req, res, next) => {
     console.error('[Netlify Function] Database connection error:', err);
     res.status(500).json({
       success: false,
-      message: 'Failed to connect to database',
+      message: 'Failed to connect to database: ' + (err.message || 'unknown error'),
     });
   }
 });

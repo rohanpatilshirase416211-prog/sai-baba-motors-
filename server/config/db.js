@@ -45,15 +45,26 @@ const connectDB = async () => {
     'mongodb+srv://rohanp0568:Rohan%40123@cluster0.orpgi7j.mongodb.net/saibabamotors?retryWrites=true&w=majority&appName=Cluster0';
 
 
+  const isServerless = !!(
+    process.env.NETLIFY ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.LAMBDA_TASK_ROOT
+  );
+
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2000,
+      serverSelectionTimeoutMS: isServerless ? 10000 : 5000,
     });
     console.log(`[MongoDB] Connected to external MongoDB host: ${conn.connection.host}`);
     return conn;
   } catch (err) {
+    if (isServerless) {
+      console.error(`[MongoDB] Failed to connect to external MongoDB: ${err.message}`);
+      throw err;
+    }
     console.warn(`[MongoDB] External MongoDB not reachable at ${uri}: ${err.message}`);
     console.log('[MongoDB] Initializing persistent local database in server/data/db...');
+
 
     try {
       const { MongoMemoryServer } = require('mongodb-memory-server');
