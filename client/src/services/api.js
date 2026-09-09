@@ -5,12 +5,7 @@ const getBaseUrl = () => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
-  if (typeof window !== 'undefined') {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return '/api';
-    }
-  }
-  return '/.netlify/functions/api';
+  return '/api';
 };
 
 const BASE_URL = getBaseUrl();
@@ -94,7 +89,7 @@ export const authAPI = {
     ),
 };
 
-// Vehicle Endpoints
+// Vehicle Endpoints — Direct live database communication
 export const vehicleAPI = {
   getAll: (params) =>
     callWithFallback(
@@ -116,31 +111,12 @@ export const vehicleAPI = {
       () => API.get(`/vehicles/${id}`),
       () => localStore.localGetVehicleById(id)
     ),
-  create: (vehicleData) =>
-    callWithFallback(
-      () => API.post('/vehicles', vehicleData),
-      () => localStore.localCreateVehicle(vehicleData)
-    ),
-  update: (id, vehicleData) =>
-    callWithFallback(
-      () => API.put(`/vehicles/${id}`, vehicleData),
-      () => localStore.localUpdateVehicle(id, vehicleData)
-    ),
-  delete: (id) =>
-    callWithFallback(
-      () => API.delete(`/vehicles/${id}`),
-      () => localStore.localDeleteVehicle(id)
-    ),
-  updateStatus: (id, status) =>
-    callWithFallback(
-      () => API.patch(`/vehicles/${id}/status`, { status }),
-      () => localStore.localUpdateStatus(id, status)
-    ),
-  toggleFeatured: (id) =>
-    callWithFallback(
-      () => API.patch(`/vehicles/${id}/featured`),
-      () => localStore.localToggleFeatured(id)
-    ),
+  // Mutations MUST write directly to MongoDB so all browsers & devices see changes
+  create: (vehicleData) => API.post('/vehicles', vehicleData),
+  update: (id, vehicleData) => API.put(`/vehicles/${id}`, vehicleData),
+  delete: (id) => API.delete(`/vehicles/${id}`),
+  updateStatus: (id, status) => API.patch(`/vehicles/${id}/status`, { status }),
+  toggleFeatured: (id) => API.patch(`/vehicles/${id}/featured`),
 };
 
 // Enquiry Endpoints
