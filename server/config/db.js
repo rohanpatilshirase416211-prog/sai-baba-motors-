@@ -40,7 +40,10 @@ const connectDB = async () => {
     return conn;
   }
 
-  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/saibabamotors';
+  const uri =
+    process.env.MONGODB_URI ||
+    'mongodb+srv://rohanp0568:Rohan%40123@cluster0.orpgi7j.mongodb.net/saibabamotors?retryWrites=true&w=majority&appName=Cluster0';
+
 
   try {
     const conn = await mongoose.connect(uri, {
