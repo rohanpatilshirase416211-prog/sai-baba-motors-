@@ -9,22 +9,23 @@
     "dev:client": "npm run dev --prefix client",
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
     "seed": "npm run seed --prefix server",
-    "build": "npm --prefix client install --include=dev && npm --prefix client run build && node -e \"const fs = require('fs'); if(fs.existsSync('client/dist')){fs.cpSync('client/dist', 'dist', {recursive: true});}\""
+    "build": "npm --prefix client install --include=dev && npm --prefix client run build && npx esbuild server/serverless.js --bundle --platform=node --target=node18 --outfile=netlify/functions/api.js && node -e \"const fs = require('fs'); if(fs.existsSync('client/dist')){fs.cpSync('client/dist', 'dist', {recursive: true});}\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.21.5"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.11.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.7.0",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.5",
-    "multer": "^2.3.0",
-    "serverless-http": "^4.0.0"
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1",
+    "multer": "^1.4.5-lts.1",
+    "serverless-http": "^3.2.0"
   }
 }
