@@ -1,3 +1,4 @@
+// Sai Baba Motors — Cloud Backend API v2.0 (Updated: 2026-09-09)
 const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
@@ -50,6 +51,7 @@ const router = express.Router();
 router.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
+    version: '2.0.1',
     dealership: 'साईबाबा मोटर्स (Sai Baba Motors)',
     database: 'MongoDB Atlas',
     timestamp: new Date().toISOString(),
