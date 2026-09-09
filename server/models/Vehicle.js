@@ -122,11 +122,11 @@ vehicleSchema.index({ vehicleType: 1, year: 1, status: 1 });
 vehicleSchema.index({ featured: 1, status: 1 });
 
 // Helper to ensure primaryImage is set if images exist
-vehicleSchema.pre('save', function (next) {
+vehicleSchema.pre('save', function () {
   if (this.images && this.images.length > 0 && !this.primaryImage) {
     this.primaryImage = this.images[0];
   }
-  next();
 });
+
 
 module.exports = mongoose.model('Vehicle', vehicleSchema);
