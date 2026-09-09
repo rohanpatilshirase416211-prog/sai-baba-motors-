@@ -27,7 +27,6 @@ if (
 const uploadImages = async (req, res, next) => {
   try {
     if (!req.files || req.files.length === 0) {
-      // Check for single file fallback
       if (req.file) {
         req.files = [req.file];
       } else {
@@ -41,26 +40,48 @@ const uploadImages = async (req, res, next) => {
     const uploadedUrls = [];
 
     for (const file of req.files) {
-      if (cloudinary) {
-        // Cloudinary upload
-        try {
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: 'saibaba_motors/vehicles',
-            transformation: [{ quality: 'auto:good', fetch_format: 'auto' }],
-          });
-          uploadedUrls.push(result.secure_url);
-          // Delete temp local file after cloud upload
-          fs.unlink(file.path, () => {});
-        } catch (cloudErr) {
-          console.error('[Cloudinary Upload Error]', cloudErr);
-          // Fallback to local url if cloud upload fails
-          uploadedUrls.push(`/uploads/${file.filename}`);
+      // 1. If buffer exists (memoryStorage in Serverless / Netlify Function)
+      if (file.buffer) {
+        if (cloudinary) {
+          try {
+            const b64 = Buffer.from(file.buffer).toString('base64');
+            const dataUri = `data:${file.mimetype};base64,${b64}`;
+            const result = await cloudinary.uploader.upload(dataUri, {
+              folder: 'saibaba_motors/vehicles',
+              transformation: [{ quality: 'auto:good', fetch_format: 'auto' }],
+            });
+            uploadedUrls.push(result.secure_url);
+            continue;
+          } catch (cloudErr) {
+            console.error('[Cloudinary Upload Error]', cloudErr);
+          }
         }
-      } else {
-        // Local server static path
+        // Fallback: use data URI directly so it can be saved in MongoDB
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        uploadedUrls.push(`data:${file.mimetype};base64,${b64}`);
+        continue;
+      }
+
+      // 2. If file.path exists (diskStorage in local dev)
+      if (file.path) {
+        if (cloudinary) {
+          try {
+            const result = await cloudinary.uploader.upload(file.path, {
+              folder: 'saibaba_motors/vehicles',
+              transformation: [{ quality: 'auto:good', fetch_format: 'auto' }],
+            });
+            uploadedUrls.push(result.secure_url);
+            fs.unlink(file.path, () => {});
+            continue;
+          } catch (cloudErr) {
+            console.error('[Cloudinary Upload Error]', cloudErr);
+            uploadedUrls.push(`/uploads/${file.filename}`);
+            continue;
+          }
+        }
+
         uploadedUrls.push(`/uploads/${file.filename}`);
 
-        // Also copy to client/public/uploads so static builds include newly uploaded files
         try {
           const clientPublicUploads = path.join(__dirname, '..', '..', 'client', 'public', 'uploads');
           if (!fs.existsSync(clientPublicUploads)) {
@@ -68,7 +89,7 @@ const uploadImages = async (req, res, next) => {
           }
           fs.copyFileSync(file.path, path.join(clientPublicUploads, file.filename));
         } catch (copyErr) {
-          // Non-critical, continue
+          // Non-critical
         }
       }
     }
